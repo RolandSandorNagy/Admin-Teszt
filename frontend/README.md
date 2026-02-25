@@ -1,12 +1,12 @@
 # Frontend – Vue 3 + Vite
 
-Vue 3 SPA, amely a CodeIgniter 4 backend API-t használja.
+Vue 3 SPA, Bootstrap 5 UI-val, CodeIgniter 4 backend API-val.
 
 ## Követelmények
 - Node.js 18+ (ajánlott 20)
 - npm
 
-## Telepítés / futtatás
+## Indítás
 
 ```bash
 npm install
@@ -15,23 +15,23 @@ npm run dev
 
 Frontend: `http://localhost:5173`
 
-A `vite.config.js` proxy továbbítja az API hívásokat a backend felé:
-- frontend: `http://localhost:5173`
-- backend: `http://localhost:8080`
-- `/api/*` → backend
+## Proxy
+
+A Vite dev server proxyzza az API hívásokat a backend felé:
+- `/api/*` → `http://localhost:8080/api/*`
 
 ## Oldalak
 
 - `/` – Login
-- `/admin` – Admin felület (route guard: ha nincs session → visszairányít a loginra)
-- Dinamikus oldalak: a menüből felvett URL-ek a frontendben dinamikus nézeten jelennek meg.
+- `/admin` – Admin felület (route guard: kijelentkezve loginra irányít)
 
 ## CSRF
 
 SPA kompatibilis CSRF:
 - `GET /api/csrf`-ről lekéri a tokent
-- Minden nem-GET kéréshez automatikusan hozzáadja `X-CSRF-TOKEN` headerben (axios interceptor)
+- POST/PUT/PATCH/DELETE kéréseknél automatikusan elküldi `X-CSRF-TOKEN` headerben (axios interceptor)
 
-## UI
+## Belépés
 
-Bootstrap 5 alap styling.
+- nickname: `admin`
+- password: `Admin123!`

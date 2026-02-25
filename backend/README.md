@@ -1,69 +1,86 @@
-# CodeIgniter 4 Application Starter
+# Backend – CodeIgniter 4
 
-## What is CodeIgniter?
+CI4 alapú REST API a Vue frontendhez (login + menükezelés + MySQL feladat adatmodell).
 
-CodeIgniter is a PHP full-stack web framework that is light, fast, flexible and secure.
-More information can be found at the [official site](https://codeigniter.com).
+## Követelmények
 
-This repository holds a composer-installable app starter.
-It has been built from the
-[development repository](https://github.com/codeigniter4/CodeIgniter4).
+- PHP 8.1+ (ajánlott 8.2)
+- Composer
+- MySQL 8 / MariaDB
 
-More information about the plans for version 4 can be found in [CodeIgniter 4](https://forum.codeigniter.com/forumdisplay.php?fid=28) on the forums.
+## Indítás
 
-You can read the [user guide](https://codeigniter.com/user_guide/)
-corresponding to the latest version of the framework.
+```bash
+composer install
+cp env .env
+php spark serve
+```
 
-## Installation & updates
+Alap URL: `http://localhost:8080`
 
-`composer create-project codeigniter4/appstarter` then `composer update` whenever
-there is a new release of the framework.
+## Konfiguráció (.env)
 
-When updating, check the release notes to see if there are any changes you might need to apply
-to your `app` folder. The affected files can be copied or merged from
-`vendor/codeigniter4/framework/app`.
+A `backend/.env` fájlban állítsd be a DB kapcsolatot, pl. (XAMPP):
 
-## Setup
+```ini
+database.default.hostname = localhost
+database.default.database = ci4_admin_test
+database.default.username = root
+database.default.password =
+database.default.DBDriver = MySQLi
+database.default.port = 3306
+```
 
-Copy `env` to `.env` and tailor for your app, specifically the baseURL
-and any database settings.
+## Adatbázis
 
-## Important Change with index.php
+Importáld: `database.sql`
 
-`index.php` is no longer in the root of the project! It has been moved inside the *public* folder,
-for better security and separation of components.
+A fájl tartalmaz:
+- loginhoz és menühöz szükséges táblákat (`users`, `menus`)
+- a MySQL feladathoz kért táblákat:
+  - `tranzakciok`
+  - `tranzakcio_elemek`
+  - `tranzakcio_fizetesi_modok` (egy tranzakció több módon is fizethető)
+  - `esemenyek`
+  - `jegyek` (kapacitás = jegyek száma, státuszok ENUM)
+- dummy adatokat
+- a 4 kért lekérdezést (a fájl végén)
 
-This means that you should configure your web server to "point" to your project's *public* folder, and
-not to the project root. A better practice would be to configure a virtual host to point there. A poor practice would be to point your web server to the project root and expect to enter *public/...*, as the rest of your logic and the
-framework are exposed.
+## Adatmodell magyarázat (röviden)
 
-**Please** read the user guide for a better explanation of how CI4 works!
+### users
+Bejelentkezéshez szükséges tábla.
+- `nickname` unique
+- `password_hash` (bcrypt)
+- `is_active`
 
-## Repository Management
+### menus
+Hierarchikus menü támogatás önhivatkozó `parent_id`-vel.
+- `parent_id` -> `menus.id` (tetszőleges mélység)
+- `sort_order` (azonos szülő alatt rendezés)
+- `is_active`
+Indexek: `(parent_id, sort_order)` a gyors rendezéshez.
 
-We use GitHub issues, in our main repository, to track **BUGS** and to track approved **DEVELOPMENT** work packages.
-We use our [forum](http://forum.codeigniter.com) to provide SUPPORT and to discuss
-FEATURE REQUESTS.
+### esemenyek + jegyek
+- `esemenyek`: esemény metaadatok (név, időpont, helyszín)
+- `jegyek`: eseményhez tartozó jegyek + státusz (`eladott`, `szabad`, `foglalt`, `nem_eladhato`)
+A jegyek száma reprezentálja az esemény kapacitását, így számolható a kihasználtság.
 
-This repository is a "distribution" one, built by our release preparation script.
-Problems with it can be raised on our forum, or as issues in the main repository.
+### tranzakciok + tranzakcio_elemek + tranzakcio_fizetesi_modok
+- `tranzakciok`: vásárlás fej (státusz, dátum, total)
+- `tranzakcio_elemek`: tételek (pl. jegy)
+- `tranzakcio_fizetesi_modok`: több fizetési mód támogatása (1 tranzakció -> több sor)
 
-## Server Requirements
+## CSRF (SPA)
 
-PHP version 8.2 or higher is required, with the following extensions installed:
+A CSRF globálisan engedélyezett.
+SPA esetben a frontend a tokent a `GET /api/csrf` végponton kéri le, és minden nem-GET kéréshez elküldi `X-CSRF-TOKEN` headerben.
 
-- [intl](http://php.net/manual/en/intl.requirements.php)
-- [mbstring](http://php.net/manual/en/mbstring.installation.php)
+## API (röviden)
 
-> [!WARNING]
-> - The end of life date for PHP 7.4 was November 28, 2022.
-> - The end of life date for PHP 8.0 was November 26, 2023.
-> - The end of life date for PHP 8.1 was December 31, 2025.
-> - If you are still using below PHP 8.2, you should upgrade immediately.
-> - The end of life date for PHP 8.2 will be December 31, 2026.
-
-Additionally, make sure that the following extensions are enabled in your PHP:
-
-- json (enabled by default - don't turn it off)
-- [mysqlnd](http://php.net/manual/en/mysqlnd.install.php) if you plan to use MySQL
-- [libcurl](http://php.net/manual/en/curl.requirements.php) if you plan to use the HTTP\CURLRequest library
+- `GET  /api/csrf`
+- `POST /api/login`
+- `POST /api/logout`
+- `GET  /api/me`
+- `GET  /api/menu` (auth)
+- `POST /api/menu` (auth)
