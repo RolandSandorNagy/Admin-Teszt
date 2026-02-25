@@ -1,25 +1,37 @@
-# Frontend (Vue 3 + Vite)
+# Frontend – Vue 3 + Vite
+
+Vue 3 SPA, amely a CodeIgniter 4 backend API-t használja.
 
 ## Követelmények
 - Node.js 18+ (ajánlott 20)
 - npm
 
 ## Telepítés / futtatás
+
 ```bash
 npm install
 npm run dev
 ```
 
-Böngésző: `http://localhost:5173`
+Frontend: `http://localhost:5173`
 
-A `vite.config.js` proxy miatt a `/api/*` hívások automatikusan a backend felé mennek:
-- backend: `http://localhost:8080`
+A `vite.config.js` proxy továbbítja az API hívásokat a backend felé:
 - frontend: `http://localhost:5173`
+- backend: `http://localhost:8080`
+- `/api/*` → backend
 
-## Megjegyzés CSRF-hez
-CI4 CSRF bekapcsolt állapotában POST-hoz token kell. Interjútesztnél két egyszerű opció:
-1) CSRF-t csak a klasszikus formokra használod (nem SPA), vagy
-2) SPA esetén beállítod, hogy a CSRF cookie-ból/response headerből felvegye a frontend, és küldje vissza headerben.
+## Oldalak
 
-Ebben a minimal példában a hangsúly az auth + menü rekurzión van.
-Ha a cégnél KÖTELEZŐ a CSRF az API-ra is, szólj és adok egy komplett CI4+Vue CSRF megoldást (cookie + axios interceptor).
+- `/` – Login
+- `/admin` – Admin felület (route guard: ha nincs session → visszairányít a loginra)
+- Dinamikus oldalak: a menüből felvett URL-ek a frontendben dinamikus nézeten jelennek meg.
+
+## CSRF
+
+SPA kompatibilis CSRF:
+- `GET /api/csrf`-ről lekéri a tokent
+- Minden nem-GET kéréshez automatikusan hozzáadja `X-CSRF-TOKEN` headerben (axios interceptor)
+
+## UI
+
+Bootstrap 5 alap styling.
