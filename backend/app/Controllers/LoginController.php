@@ -178,11 +178,11 @@ class LoginController extends Controller
 
     public function csrf()
     {
-        // CI4 beépített helper-ek:
-        // csrf_hash() = aktuális token érték
+        helper('security');
+
         return $this->respond([
             'ok' => true,
             'token' => csrf_hash(),
         ]);
-    }    
+    }
 }

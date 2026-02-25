@@ -2,32 +2,39 @@
 
 namespace Config;
 
-use CodeIgniter\Config\BaseConfig;
+use CodeIgniter\Router\RouteCollection;
+use Config\Services;
 
 /**
- * NOTE:
- * This file is meant to be COPY-PASTED into a real CodeIgniter 4 project created by Composer.
- * See README.md for setup steps.
+ * @var RouteCollection $routes
  */
 $routes = Services::routes();
 
+// ------------------------------------------------------------
+// Router Setup
+// ------------------------------------------------------------
 $routes->setDefaultNamespace('App\Controllers');
 $routes->setDefaultController('LoginController');
 $routes->setDefaultMethod('index');
 $routes->setTranslateURIDashes(false);
 $routes->set404Override();
 
-// If you use CI4's Auto Routing, keep it OFF for this task (recommended).
+// Auto Routing OFF (recommended)
 $routes->setAutoRoute(false);
 
-$routes->get('api/me', 'LoginController::me');
-$routes->get('api/csrf', 'LoginController::csrf');
+// ------------------------------------------------------------
+// Routes
+// ------------------------------------------------------------
 
-// Health / fallback
+// Health
 $routes->get('/', 'LoginController::index');
 
+// CSRF + auth state
+$routes->get('api/csrf', 'LoginController::csrf');
+$routes->get('api/me', 'LoginController::me');
+
 // API
-$routes->group('api', static function($routes) {
+$routes->group('api', static function (RouteCollection $routes) {
     $routes->post('login', 'LoginController::login');
     $routes->post('logout', 'LoginController::logout');
 
