@@ -1,4 +1,3 @@
-/* Bootstrap mellett csak minimál, hogy ne írjuk felül a Bootstrap classokat */
 body {
   background: #f8f9fa;
 }
@@ -9,7 +8,6 @@ code {
   border-radius: 6px;
 }
 
-/* Kicsi finomítás a toast-nak */
 .toast {
   box-shadow: 0 10px 30px rgba(0,0,0,.12);
 }
